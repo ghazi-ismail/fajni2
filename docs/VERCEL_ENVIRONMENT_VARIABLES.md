@@ -4,7 +4,7 @@ Configure these variables in the Vercel project settings for the relevant enviro
 
 | Variable | Required | Used by | Purpose | Production example format | Secret |
 |---|---|---|---|---|---|
-| `DATABASE_URL` | Yes | `server/db.ts`, `drizzle.config.ts` | MySQL connection string for the application and migrations | `mysql://user:password@host:3306/database` | Yes |
+| `DATABASE_URL` | Yes | `server/db.ts`, `drizzle.config.ts` | PostgreSQL connection string for the application and migrations | `postgresql://user:password@host:5432/database` | Yes |
 | `JWT_SECRET` | Yes | `server/routers.ts`, `server/_core/env.ts` | Signs customer/admin JWTs and the server session material | Long random value, at least 32 bytes | Yes |
 | `VITE_APP_ID` | Yes for Manus OAuth | `server/_core/env.ts`, client OAuth flow | Application identifier sent to the OAuth service | Provider-issued app ID | No |
 | `OAUTH_SERVER_URL` | Yes for Manus OAuth | `server/_core/sdk.ts` | Server-side OAuth API base URL | `https://oauth.example.com` | No |
@@ -23,7 +23,7 @@ Configure these variables in the Vercel project settings for the relevant enviro
 
 Set server-only values without the `VITE_` prefix as standard Environment Variables. Do not enable `BUILT_IN_FORGE_API_KEY` or `JWT_SECRET` for the browser. Vercel exposes `VITE_` values at build time, so changing them requires a new deployment.
 
-`DATABASE_URL` must point to a reachable MySQL-compatible provider. The repository does not contain a database server and Vercel does not replace the current MySQL dependency. Run migrations once against that database before the first production test.
+`DATABASE_URL` must point to a reachable PostgreSQL provider. The repository does not contain a database server. Run the PostgreSQL migration once against that database before the first production test.
 
 ## Local setup
 

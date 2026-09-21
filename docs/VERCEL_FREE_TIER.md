@@ -8,13 +8,13 @@ No persistent server, VPS, Render service, Railway service, WebSocket process, o
 
 ## What remains external
 
-The application still requires a reachable MySQL-compatible database because the existing Drizzle schema and `mysql2` driver are retained. A database provider is therefore required; the project is not Vercel-only. OAuth requires the existing OAuth service. The storage proxy requires the existing Forge/S3 service only if storage functionality is exercised. The map component requires its configured Forge map proxy when that UI is used. Analytics is optional.
+The application still requires a reachable PostgreSQL database because Drizzle persists the application's business data outside Vercel. A database provider is therefore required; the project is not Vercel-only. OAuth requires the existing OAuth service. The storage proxy requires the existing Forge/S3 service only if storage functionality is exercised. The map component requires its configured Forge map proxy when that UI is used. Analytics is optional.
 
 ## Free-tier considerations
 
 Vercel Function usage is affected by invocation volume, active CPU, memory, execution duration, and request payload size. The application's 50 MB JSON parser limit is intentionally retained from the original project, but large requests can consume more Function resources and should be avoided on a free plan. Database queries and external OAuth, storage, notification, and map calls also consume time within the Function request.
 
-The MySQL provider has its own connection, storage, query, and bandwidth limits. Database pricing and free-tier terms are provider-specific and are not included in Vercel's allowance. Keep the database near the selected Function region to reduce latency.
+The PostgreSQL provider has its own connection, storage, query, and bandwidth limits. Database pricing and free-tier terms are provider-specific and are not included in Vercel's allowance. Keep the database near the selected Function region to reduce latency.
 
 The application has no cron or background worker path used by the business features. The repository contains a generic Manus heartbeat SDK, but it is not registered as a Vercel schedule by this implementation.
 

@@ -1,1 +1,0 @@
-ALTER TABLE `customers` ADD `passwordHash` varchar(255);

@@ -1,5 +1,7 @@
 # Vercel Final Report
 
+> **Superseded:** This report describes the pre-PostgreSQL state. Use `docs/POSTGRES_MIGRATION_FINAL_REPORT.md` for the current branch and database architecture.
+
 ## 1. Current architecture
 
 The project remains a single React/Vite frontend with an Express and tRPC backend. Drizzle ORM continues to use the existing MySQL dialect and `mysql2` driver. Customer and admin authentication continue to use the existing JWT cookies, while the existing Manus OAuth flow remains available. No UI or business workflow was rewritten.

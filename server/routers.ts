@@ -194,7 +194,7 @@ export const appRouter = router({
         governorate: input.governorate,
         area: input.area,
         address: input.address,
-      }).onDuplicateKeyUpdate({ set: {
+      }).onConflictDoUpdate({ target: customers.phone, set: {
         fullName, passwordHash, governorate: input.governorate, area: input.area, address: input.address,
       } });
       const customer = await db.select().from(customers).where(eq(customers.phone, normalizedPhone)).limit(1);
@@ -206,8 +206,9 @@ export const appRouter = router({
         deliveryFils,
         salePriceFils: input.budgetFils,
         notes: input.notes || null,
-      });
-      const orderId = Number(inserted[0].insertId);
+      }).returning({ id: orders.id });
+      const orderId = inserted[0]?.id;
+      if (!orderId) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "تعذر إنشاء الطلب." });
       const orderNumber = `FN-${String(existingOrders.length + 1).padStart(6, "0")}`;
       await db.update(orders).set({ orderNumber }).where(eq(orders.id, orderId));
       await db.insert(orderStatusHistory).values({ orderId, fromStatus: null, toStatus: "NEW", changedBy: "النظام" });
@@ -281,7 +282,7 @@ export const appRouter = router({
       await db.transaction(async tx => {
         await tx.delete(orderItems).where(eq(orderItems.orderId, input.id));
         if (input.items.length) await tx.insert(orderItems).values(input.items.map(item => ({ ...item, orderId: input.id, totalCostFils: item.quantity * item.unitCostFils })));
-        await tx.insert(orderCosts).values({ orderId: input.id, boxCostFils: input.boxCostFils, decorationCostFils: input.decorationCostFils, packagingCostFils: input.packagingCostFils, deliveryCostFils: input.deliveryCostFils, otherCostFils: input.otherCostFils }).onDuplicateKeyUpdate({ set: { boxCostFils: input.boxCostFils, decorationCostFils: input.decorationCostFils, packagingCostFils: input.packagingCostFils, deliveryCostFils: input.deliveryCostFils, otherCostFils: input.otherCostFils } });
+        await tx.insert(orderCosts).values({ orderId: input.id, boxCostFils: input.boxCostFils, decorationCostFils: input.decorationCostFils, packagingCostFils: input.packagingCostFils, deliveryCostFils: input.deliveryCostFils, otherCostFils: input.otherCostFils }).onConflictDoUpdate({ target: orderCosts.orderId, set: { boxCostFils: input.boxCostFils, decorationCostFils: input.decorationCostFils, packagingCostFils: input.packagingCostFils, deliveryCostFils: input.deliveryCostFils, otherCostFils: input.otherCostFils } });
         await tx.update(orders).set({ salePriceFils: input.salePriceFils, deliveryFils: input.deliveryFils, totalCostFils: finance.totalCostFils, profitFils: finance.profitFils }).where(eq(orders.id, input.id));
       });
       return finance;
@@ -297,8 +298,8 @@ export const appRouter = router({
       const db = await getDb();
       const { id, ...values } = input;
       if (id) { await db.update(categories).set(values).where(eq(categories.id, id)); return { id }; }
-      const inserted = await db.insert(categories).values(values);
-      return { id: Number(inserted[0].insertId) };
+      const inserted = await db.insert(categories).values(values).returning({ id: categories.id });
+      return { id: inserted[0].id };
     }),
     deleteCategory: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ input }) => {
       const db = await getDb();
@@ -312,7 +313,7 @@ export const appRouter = router({
     updateSettings: adminProcedure.input(z.object({ values: z.record(z.string().min(1).max(100), z.string().max(1500)) })).mutation(async ({ input }) => {
       const db = await getDb();
       for (const [key, value] of Object.entries(input.values)) {
-        await db.insert(settings).values({ key, value }).onDuplicateKeyUpdate({ set: { value } });
+        await db.insert(settings).values({ key, value }).onConflictDoUpdate({ target: settings.key, set: { value } });
       }
       return { success: true };
     }),
@@ -321,7 +322,7 @@ export const appRouter = router({
     saveExpense: adminProcedure.input(z.object({ id: z.number().int().positive().optional(), name: z.string().trim().min(2).max(160), category: z.string().trim().min(2).max(80), amountFils: fils.min(1), expenseDate: z.coerce.date(), notes: z.string().trim().max(1000).optional() })).mutation(async ({ input }) => {
       const db = await getDb(); const { id, ...values } = input;
       if (id) { await db.update(expenses).set({ ...values, notes: values.notes || null }).where(eq(expenses.id, id)); return { id }; }
-      const inserted = await db.insert(expenses).values({ ...values, notes: values.notes || null }); return { id: Number(inserted[0].insertId) };
+      const inserted = await db.insert(expenses).values({ ...values, notes: values.notes || null }).returning({ id: expenses.id }); return { id: inserted[0].id };
     }),
     deleteExpense: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ input }) => { const db = await getDb(); await db.delete(expenses).where(eq(expenses.id, input.id)); return { success: true }; }),
 
@@ -329,7 +330,7 @@ export const appRouter = router({
     saveWarehouseProduct: adminProcedure.input(z.object({ id: z.number().int().positive().optional(), name: z.string().trim().min(2).max(180), categoryId: z.number().int().positive().nullable(), quantity: z.number().int().min(0).max(100_000), unitCostFils: fils })).mutation(async ({ input }) => {
       const db = await getDb(); const { id, ...values } = input;
       if (id) { await db.update(warehouseProducts).set(values).where(eq(warehouseProducts.id, id)); return { id }; }
-      const inserted = await db.insert(warehouseProducts).values(values); return { id: Number(inserted[0].insertId) };
+      const inserted = await db.insert(warehouseProducts).values(values).returning({ id: warehouseProducts.id }); return { id: inserted[0].id };
     }),
     deleteWarehouseProduct: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ input }) => { const db = await getDb(); await db.delete(warehouseProducts).where(eq(warehouseProducts.id, input.id)); return { success: true }; }),
   }),

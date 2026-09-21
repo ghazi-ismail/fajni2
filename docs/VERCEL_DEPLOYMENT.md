@@ -24,18 +24,19 @@ Add the variables listed in `docs/VERCEL_ENVIRONMENT_VARIABLES.md`. At minimum, 
 
 Use separate values for Preview and Production when the providers expose separate environments. Never paste a production secret into the repository or a `VITE_` variable.
 
-## 4. Prepare the database
+## 4. Prepare the PostgreSQL database
 
-Create or select a reachable MySQL-compatible database. Copy its connection string into the Vercel `DATABASE_URL` variable. The connection must accept connections from Vercel's Function runtime and must use TLS if required by the provider.
+Create or select a reachable PostgreSQL database. Copy its connection string into the Vercel `DATABASE_URL` variable. The connection must accept connections from Vercel's Function runtime and must use TLS if required by the provider.
 
 From a trusted local environment with the same `DATABASE_URL`, run:
 
 ```bash
 pnpm install --frozen-lockfile
-pnpm db:push
+pnpm db:generate
+pnpm db:migrate
 ```
 
-The existing script generates the Drizzle migration artifacts and applies the migrations. It is a one-time deployment step, not a request-time operation. If the database already contains the schema, inspect the generated migration plan before applying it.
+These commands generate and apply the reviewed PostgreSQL Drizzle migration. They are one-time deployment steps, not request-time operations. Run them only against the new PostgreSQL database. Do not point them at the old production MySQL database.
 
 ## 5. Deploy
 
@@ -92,9 +93,9 @@ Confirm that the project Root Directory is the repository root and that `api/[..
 
 Confirm that `vercel.json` is at the repository root and that the deployment is using `dist/public` as its output directory. The rewrite intentionally excludes `/api/*`.
 
-### Database is unavailable
+### PostgreSQL is unavailable
 
-Check `DATABASE_URL`, provider network access, TLS requirements, and the database region. Run the Drizzle migration from a trusted environment and inspect Function logs for the actual connection error without exposing credentials.
+Check `DATABASE_URL`, provider network access, TLS requirements, and the database region. Run the PostgreSQL Drizzle migration from a trusted environment and inspect Function logs for the actual connection error without exposing credentials.
 
 ### Authentication fails after deployment
 

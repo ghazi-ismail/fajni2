@@ -31,7 +31,7 @@ async function seed() {
     budgets: "5000,10000,15000,20000,30000,50000,100000",
     shippingRates: JSON.stringify({ "عمّان": "2", "إربد": "2.5", "الزرقاء": "2.5", "البلقاء": "3", "الكرك": "4", "العقبة": "5", "مادبا": "3", "جرش": "3", "عجلون": "3.5", "المفرق": "4", "الطفيلة": "4.5", "معان": "5" }),
   };
-  for (const [key, value] of Object.entries(defaults)) await db.insert(settings).values({ key, value }).onDuplicateKeyUpdate({ set: { value } });
+  for (const [key, value] of Object.entries(defaults)) await db.insert(settings).values({ key, value }).onConflictDoUpdate({ target: settings.key, set: { value } });
 
   const customerCount = await db.select({ id: customers.id }).from(customers).limit(1);
   if (!customerCount.length) {
@@ -54,8 +54,8 @@ async function seed() {
       { number: "FN-000005", customer: allCustomers[1], category: findCategory("الإلكترونيات"), budget: 50000, status: "CANCELLED" as const, notes: "ألغاه العميل قبل التجهيز.", total: 0, profit: 0 },
     ];
     for (const item of examples) {
-      const inserted = await db.insert(orders).values({ orderNumber: item.number, customerId: item.customer.id, categoryId: item.category.id, budgetFils: item.budget, salePriceFils: item.budget, status: item.status, notes: item.notes, totalCostFils: item.total, profitFils: item.profit });
-      const orderId = Number(inserted[0].insertId);
+      const inserted = await db.insert(orders).values({ orderNumber: item.number, customerId: item.customer.id, categoryId: item.category.id, budgetFils: item.budget, salePriceFils: item.budget, status: item.status, notes: item.notes, totalCostFils: item.total, profitFils: item.profit }).returning({ id: orders.id });
+      const orderId = inserted[0].id;
       await db.insert(orderStatusHistory).values({ orderId, fromStatus: null, toStatus: "NEW", changedBy: "النظام" });
       if (item.status !== "NEW") await db.insert(orderStatusHistory).values({ orderId, fromStatus: "NEW", toStatus: item.status, changedBy: "مدير فاجئني" });
       if (item.total) {
