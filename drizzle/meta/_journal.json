@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1790018981135,
+      "tag": "0000_jittery_namora",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1790019289763,
+      "tag": "0001_polite_purple_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1790022529415,
+      "tag": "0002_flippant_valeria_richards",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1790023717423,
+      "tag": "0003_tidy_clea",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1790027468316,
+      "tag": "0004_clammy_galactus",
+      "breakpoints": true
+    }
+  ]
+}

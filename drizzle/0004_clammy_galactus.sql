@@ -1,0 +1,2 @@
+ALTER TABLE `warehouse_products` ADD `categoryId` int;--> statement-breakpoint
+ALTER TABLE `warehouse_products` ADD CONSTRAINT `warehouse_products_categoryId_categories_id_fk` FOREIGN KEY (`categoryId`) REFERENCES `categories`(`id`) ON DELETE set null ON UPDATE no action;
