@@ -1,27 +1,83 @@
-import { ArrowRight, Box, ChartNoAxesCombined, ClipboardList, CreditCard, FolderCog, LayoutDashboard, Loader2, LogOut, Package, Plus, Save, Settings2, Tags, Trash2, Truck, Warehouse } from "lucide-react";
+import {
+  ArrowRight,
+  Box,
+  ChartNoAxesCombined,
+  ClipboardList,
+  CreditCard,
+  FolderCog,
+  LayoutDashboard,
+  Loader2,
+  LogOut,
+  Package,
+  Plus,
+  Save,
+  Settings2,
+  Tags,
+  Trash2,
+  Truck,
+  Warehouse,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useRoute } from "wouter";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
-import { CategoryIcon, categoryIconOptions, contrastText, dateAr, formatJOD, governorates, StatusBadge, statusMeta } from "@/lib/faj2ni";
+import {
+  CategoryIcon,
+  categoryIconOptions,
+  contrastText,
+  dateAr,
+  formatJOD,
+  governorates,
+  StatusBadge,
+  statusMeta,
+} from "@/lib/faj2ni";
 
-type Tab = "dashboard" | "orders" | "categories" | "settings" | "shipping" | "expenses" | "warehouse";
-const navItems: Array<{ tab: Tab; label: string; icon: typeof LayoutDashboard }> = [
-  { tab: "dashboard", label: "نظرة عامة", icon: LayoutDashboard }, { tab: "orders", label: "الطلبات", icon: ClipboardList },
-  { tab: "categories", label: "الفئات", icon: Tags }, { tab: "settings", label: "إعدادات الموقع", icon: Settings2 }, { tab: "shipping", label: "أسعار التوصيل", icon: Truck },
-  { tab: "expenses", label: "المصاريف", icon: CreditCard }, { tab: "warehouse", label: "المستودع", icon: Warehouse },
+type Tab =
+  | "dashboard"
+  | "orders"
+  | "categories"
+  | "settings"
+  | "shipping"
+  | "expenses"
+  | "warehouse";
+const navItems: Array<{
+  tab: Tab;
+  label: string;
+  icon: typeof LayoutDashboard;
+}> = [
+  { tab: "dashboard", label: "نظرة عامة", icon: LayoutDashboard },
+  { tab: "orders", label: "الطلبات", icon: ClipboardList },
+  { tab: "categories", label: "الفئات", icon: Tags },
+  { tab: "settings", label: "إعدادات الموقع", icon: Settings2 },
+  { tab: "shipping", label: "أسعار التوصيل", icon: Truck },
+  { tab: "expenses", label: "المصاريف", icon: CreditCard },
+  { tab: "warehouse", label: "المستودع", icon: Warehouse },
 ];
 
 export default function Admin() {
   const { data: admin, isLoading } = trpc.admin.me.useQuery();
-  if (isLoading) return <div className="loading-block"><Loader2 className="animate-spin" /> جاري التحقق...</div>;
+  if (isLoading)
+    return (
+      <div className="loading-block">
+        <Loader2 className="animate-spin" /> جاري التحقق...
+      </div>
+    );
   return admin ? <AdminWorkspace admin={admin} /> : <AdminLogin />;
 }
 
 export function AdminOrderPage({ id }: { id: number }) {
   const { data: admin, isLoading } = trpc.admin.me.useQuery();
-  if (isLoading) return <div className="loading-block"><Loader2 className="animate-spin" /> جاري التحقق...</div>;
-  return admin ? <AdminWorkspace admin={admin} detailOrderId={id} /> : <AdminLogin />;
+  if (isLoading)
+    return (
+      <div className="loading-block">
+        <Loader2 className="animate-spin" /> جاري التحقق...
+      </div>
+    );
+  return admin ? (
+    <AdminWorkspace admin={admin} detailOrderId={id} />
+  ) : (
+    <AdminLogin />
+  );
 }
 
 function AdminLogin() {
@@ -29,95 +85,1440 @@ function AdminLogin() {
   const utils = trpc.useUtils();
   const [email, setEmail] = useState("admin@faj2ni.jo");
   const [password, setPassword] = useState("Faj2ni2026");
-  const login = trpc.admin.login.useMutation({ onSuccess: async () => { await utils.admin.me.invalidate(); toast.success("مرحبًا بك في لوحة الإدارة"); navigate("/admin"); }, onError: error => toast.error(error.message) });
-  return <div className="admin-login"><div className="admin-login-card"><span className="brand"><span className="brand-mark"><Box size={18} /></span> فاجئني</span><h1>لوحة الإدارة</h1><p>مساحة تشغيل داخلية مستقلة لإدارة الطلبات والتفاصيل المالية. افتح صفحة الإدارة، أدخل البريد وكلمة المرور، ثم اضغط دخول آمن.</p><div className="field"><label>البريد الإلكتروني</label><input dir="ltr" value={email} onChange={event => setEmail(event.target.value)} /></div><div className="field" style={{ marginTop: 13 }}><label>كلمة المرور</label><input dir="ltr" type="password" value={password} onChange={event => setPassword(event.target.value)} /></div><button className="btn btn-primary" style={{ marginTop: 22, width: "100%" }} disabled={login.isPending} onClick={() => login.mutate({ email, password })}>{login.isPending && <Loader2 className="animate-spin" size={16} />} دخول آمن</button><p style={{ marginTop: 14, marginBottom: 0, fontSize: 10 }}>بيانات الإدارة التجريبية: admin@faj2ni.jo / Faj2ni2026</p></div></div>;
+  const login = trpc.admin.login.useMutation({
+    onSuccess: async () => {
+      await utils.admin.me.invalidate();
+      toast.success("مرحبًا بك في لوحة الإدارة");
+      navigate("/admin");
+    },
+    onError: (error) => toast.error(error.message),
+  });
+  return (
+    <div className="admin-login">
+      <div className="admin-login-card">
+        <span className="brand">
+          <span className="brand-mark">
+            <Box size={18} />
+          </span>{" "}
+          فاجئني
+        </span>
+        <h1>لوحة الإدارة</h1>
+        <div className="field">
+          <label>البريد الإلكتروني</label>
+          <input
+            dir="ltr"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+        </div>
+        <div className="field" style={{ marginTop: 13 }}>
+          <label>كلمة المرور</label>
+          <input
+            dir="ltr"
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+        </div>
+        <button
+          className="btn btn-primary"
+          style={{ marginTop: 22, width: "100%" }}
+          disabled={login.isPending}
+          onClick={() => login.mutate({ email, password })}
+        >
+          {login.isPending && <Loader2 className="animate-spin" size={16} />}{" "}
+          دخول آمن
+        </button>
+      </div>
+    </div>
+  );
 }
 
-function AdminWorkspace({ admin, detailOrderId }: { admin: { id: number; name: string; email: string }; detailOrderId?: number }) {
+function AdminWorkspace({
+  admin,
+  detailOrderId,
+}: {
+  admin: { id: number; name: string; email: string };
+  detailOrderId?: number;
+}) {
   const [, params] = useRoute("/admin/:tab");
-  const tab = (params?.tab && navItems.some(item => item.tab === params.tab) ? params.tab : "dashboard") as Tab;
+  const tab = (
+    params?.tab && navItems.some((item) => item.tab === params.tab)
+      ? params.tab
+      : "dashboard"
+  ) as Tab;
   const [, navigate] = useLocation();
   const utils = trpc.useUtils();
   const { data: siteSettings } = trpc.admin.settings.useQuery();
-  const adminTheme = { "--primary": siteSettings?.primaryColor || "#6c5ce7", "--primary-foreground": contrastText(siteSettings?.primaryColor || "#6c5ce7"), "--secondary": siteSettings?.secondaryColor || "#f2b5d4", "--canvas": siteSettings?.backgroundColor || "#fcfbff", "--ink": contrastText(siteSettings?.backgroundColor || "#fcfbff"), "--muted": contrastText(siteSettings?.backgroundColor || "#fcfbff") === "#ffffff" ? "#ded9e8" : "#6f6981" } as React.CSSProperties;
-  const logout = trpc.admin.logout.useMutation({ onSuccess: async () => { await utils.admin.me.invalidate(); navigate("/admin"); } });
-  const titles: Record<Tab, [string, string]> = { dashboard: ["نظرة عامة", "ملخص الطلبات والنتائج المالية"], orders: ["الطلبات", "متابعة الطلبات وتكاليفها وحالتها"], categories: ["الفئات", "تنظيم صناديق المفاجآت المعروضة"], settings: ["إعدادات الموقع", "تعديل النصوص والهوية البصرية"], shipping: ["أسعار التوصيل", "تحديد سعر التوصيل لكل محافظة"], expenses: ["المصاريف", "تسجيل مصاريف التشغيل والمستلزمات"], warehouse: ["المستودع", "متابعة المنتجات والمواد الأساسية"] };
-  const [title, subtitle] = detailOrderId ? ["تفاصيل الطلب", "إدارة حالة الطلب وتكاليفه"] : titles[tab];
-  return <div className="admin-shell" style={adminTheme}><aside className="admin-sidebar"><div className="brand"><span className="brand-mark"><Box size={18} /></span><span>فاجئني</span></div><nav className="admin-nav">{navItems.map(item => { const Icon = item.icon; return <button key={item.tab} className={!detailOrderId && tab === item.tab ? "active" : ""} onClick={() => navigate(item.tab === "dashboard" ? "/admin" : `/admin/${item.tab}`)}><Icon size={17} /><span>{item.label}</span></button>; })}</nav><div className="admin-footer"><span>مرحبًا، {admin.name}</span><button onClick={() => logout.mutate()}><LogOut size={15} /> <span>تسجيل الخروج</span></button></div></aside><main className="admin-main"><div className="admin-page-title"><div><h1>{title}</h1><p>{subtitle}</p></div></div>{detailOrderId ? <OrderDetail id={detailOrderId} /> : <>{tab === "dashboard" && <Dashboard />} {tab === "orders" && <Orders />} {tab === "categories" && <Categories />} {tab === "settings" && <Settings />} {tab === "shipping" && <Shipping />} {tab === "expenses" && <Expenses />} {tab === "warehouse" && <WarehousePage />}</>}</main></div>;
+  const adminTheme = {
+    "--primary": siteSettings?.primaryColor || "#6c5ce7",
+    "--primary-foreground": contrastText(
+      siteSettings?.primaryColor || "#6c5ce7",
+    ),
+    "--secondary": siteSettings?.secondaryColor || "#f2b5d4",
+    "--canvas": siteSettings?.backgroundColor || "#fcfbff",
+    "--ink": contrastText(siteSettings?.backgroundColor || "#fcfbff"),
+    "--muted":
+      contrastText(siteSettings?.backgroundColor || "#fcfbff") === "#ffffff"
+        ? "#ded9e8"
+        : "#6f6981",
+  } as React.CSSProperties;
+  const logout = trpc.admin.logout.useMutation({
+    onSuccess: async () => {
+      await utils.admin.me.invalidate();
+      navigate("/admin");
+    },
+  });
+  const titles: Record<Tab, [string, string]> = {
+    dashboard: ["نظرة عامة", "ملخص الطلبات والنتائج المالية"],
+    orders: ["الطلبات", "متابعة الطلبات وتكاليفها وحالتها"],
+    categories: ["الفئات", "تنظيم صناديق المفاجآت المعروضة"],
+    settings: ["إعدادات الموقع", "تعديل النصوص والهوية البصرية"],
+    shipping: ["أسعار التوصيل", "تحديد سعر التوصيل لكل محافظة"],
+    expenses: ["المصاريف", "تسجيل مصاريف التشغيل والمستلزمات"],
+    warehouse: ["المستودع", "متابعة المنتجات والمواد الأساسية"],
+  };
+  const [title, subtitle] = detailOrderId
+    ? ["تفاصيل الطلب", "إدارة حالة الطلب وتكاليفه"]
+    : titles[tab];
+  return (
+    <div className="admin-shell" style={adminTheme}>
+      <aside className="admin-sidebar">
+        <div className="brand">
+          <span className="brand-mark">
+            <Box size={18} />
+          </span>
+          <span>فاجئني</span>
+        </div>
+        <nav className="admin-nav">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.tab}
+                className={!detailOrderId && tab === item.tab ? "active" : ""}
+                onClick={() =>
+                  navigate(
+                    item.tab === "dashboard" ? "/admin" : `/admin/${item.tab}`,
+                  )
+                }
+              >
+                <Icon size={17} />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+        <div className="admin-footer">
+          <span>مرحبًا، {admin.name}</span>
+          <button onClick={() => logout.mutate()}>
+            <LogOut size={15} /> <span>تسجيل الخروج</span>
+          </button>
+        </div>
+      </aside>
+      <main className="admin-main">
+        <div className="admin-page-title">
+          <div>
+            <h1>{title}</h1>
+            <p>{subtitle}</p>
+          </div>
+        </div>
+        {detailOrderId ? (
+          <OrderDetail id={detailOrderId} />
+        ) : (
+          <>
+            {tab === "dashboard" && <Dashboard />}{" "}
+            {tab === "orders" && <Orders />}{" "}
+            {tab === "categories" && <Categories />}{" "}
+            {tab === "settings" && <Settings />}{" "}
+            {tab === "shipping" && <Shipping />}{" "}
+            {tab === "expenses" && <Expenses />}{" "}
+            {tab === "warehouse" && <WarehousePage />}
+          </>
+        )}
+      </main>
+    </div>
+  );
 }
 
 function Dashboard() {
   const { data, isLoading } = trpc.admin.dashboard.useQuery();
-  if (isLoading || !data) return <div className="loading-block"><Loader2 className="animate-spin" /> جاري تحميل المؤشرات...</div>;
-  const countCards = [["إجمالي الطلبات", data.counts.total, ""], ["طلبات جديدة", data.counts.NEW, "accent"], ["مؤكدة", data.counts.CONFIRMED, ""], ["في التوصيل", data.counts.OUT_FOR_DELIVERY, ""], ["مكتملة", data.counts.DELIVERED, ""]];
-  return <><div className="metrics-grid">{countCards.map(([label, value, className]) => <div className={`metric ${className}`} key={String(label)}><span>{label}</span><strong>{value}</strong></div>)}</div><div className="finance-grid">{[["إجمالي الإيرادات", data.finance.revenue], ["تكلفة الطلبات", data.finance.orderCosts], ["مصاريف التشغيل", data.finance.expenses], ["صافي الربح", data.finance.netProfit]].map(([label, value]) => <div className="finance-card" key={String(label)}><p>{label}</p><strong>{formatJOD(Number(value))}</strong></div>)}</div><div className="panel" style={{ marginTop: 16 }}><div className="panel-title"><h2>ملخص هذا الشهر</h2><ChartNoAxesCombined size={18} color="var(--primary)" /></div><div className="finance-grid" style={{ marginTop: 0 }}><div className="finance-card"><p>إيرادات اليوم</p><strong>{formatJOD(data.finance.todayRevenue)}</strong></div><div className="finance-card"><p>إيرادات الشهر</p><strong>{formatJOD(data.finance.monthRevenue)}</strong></div><div className="finance-card"><p>مصاريف الشهر</p><strong>{formatJOD(data.finance.monthExpenses)}</strong></div><div className="finance-card"><p>صافي الشهر</p><strong>{formatJOD(data.finance.monthNet)}</strong></div></div><p style={{ color: "var(--muted)", margin: "16px 0 0", fontSize: 11, lineHeight: 1.8 }}>صافي الربح = إيرادات الطلبات غير الملغاة − تكاليف الطلبات − مصاريف التشغيل.</p></div></>;
+  if (isLoading || !data)
+    return (
+      <div className="loading-block">
+        <Loader2 className="animate-spin" /> جاري تحميل المؤشرات...
+      </div>
+    );
+  const countCards = [
+    ["إجمالي الطلبات", data.counts.total, ""],
+    ["طلبات جديدة", data.counts.NEW, "accent"],
+    ["مؤكدة", data.counts.CONFIRMED, ""],
+    ["في التوصيل", data.counts.OUT_FOR_DELIVERY, ""],
+    ["مكتملة", data.counts.DELIVERED, ""],
+  ];
+  return (
+    <>
+      <div className="metrics-grid">
+        {countCards.map(([label, value, className]) => (
+          <div className={`metric ${className}`} key={String(label)}>
+            <span>{label}</span>
+            <strong>{value}</strong>
+          </div>
+        ))}
+      </div>
+      <div className="finance-grid">
+        {[
+          ["إجمالي الإيرادات", data.finance.revenue],
+          ["تكلفة الطلبات", data.finance.orderCosts],
+          ["مصاريف التشغيل", data.finance.expenses],
+          ["صافي الربح", data.finance.netProfit],
+        ].map(([label, value]) => (
+          <div className="finance-card" key={String(label)}>
+            <p>{label}</p>
+            <strong>{formatJOD(Number(value))}</strong>
+          </div>
+        ))}
+      </div>
+      <div className="panel" style={{ marginTop: 16 }}>
+        <div className="panel-title">
+          <h2>ملخص هذا الشهر</h2>
+          <ChartNoAxesCombined size={18} color="var(--primary)" />
+        </div>
+        <div className="finance-grid" style={{ marginTop: 0 }}>
+          <div className="finance-card">
+            <p>إيرادات اليوم</p>
+            <strong>{formatJOD(data.finance.todayRevenue)}</strong>
+          </div>
+          <div className="finance-card">
+            <p>إيرادات الشهر</p>
+            <strong>{formatJOD(data.finance.monthRevenue)}</strong>
+          </div>
+          <div className="finance-card">
+            <p>مصاريف الشهر</p>
+            <strong>{formatJOD(data.finance.monthExpenses)}</strong>
+          </div>
+          <div className="finance-card">
+            <p>صافي الشهر</p>
+            <strong>{formatJOD(data.finance.monthNet)}</strong>
+          </div>
+        </div>
+        <p
+          style={{
+            color: "var(--muted)",
+            margin: "16px 0 0",
+            fontSize: 11,
+            lineHeight: 1.8,
+          }}
+        >
+          صافي الربح = إيرادات الطلبات غير الملغاة − تكاليف الطلبات − مصاريف
+          التشغيل.
+        </p>
+      </div>
+    </>
+  );
 }
 
 function Orders() {
   const [, navigate] = useLocation();
   const [filter, setFilter] = useState("ALL");
-  const input = useMemo(() => filter === "ALL" ? undefined : { status: filter as keyof typeof statusMeta }, [filter]);
+  const input = useMemo(
+    () =>
+      filter === "ALL"
+        ? undefined
+        : { status: filter as keyof typeof statusMeta },
+    [filter],
+  );
   const { data, isLoading } = trpc.admin.orders.useQuery(input);
-  return <div className="panel"><div className="panel-title"><h2>كل الطلبات</h2><select className="filter-select" value={filter} onChange={event => setFilter(event.target.value)}><option value="ALL">كل الحالات</option>{Object.entries(statusMeta).map(([key, meta]) => <option key={key} value={key}>{meta.label}</option>)}</select></div>{isLoading ? <div className="loading-block"><Loader2 className="animate-spin" /></div> : !data?.length ? <div className="empty-state">لا توجد طلبات بهذه الحالة.</div> : <div className="table-wrap"><table className="data-table"><thead><tr><th>رقم الطلب</th><th>العميل</th><th>الفئة</th><th>الميزانية</th><th>التوصيل</th><th>التاريخ</th><th>الحالة</th><th></th></tr></thead><tbody>{data.map(order => <tr key={order.id}><td dir="ltr">{order.orderNumber}</td><td><strong>{order.customerName}</strong><br /><span dir="ltr" style={{ color: "var(--muted)", fontSize: 10 }}>{order.phone}</span></td><td>{order.categoryName}</td><td>{formatJOD(order.budgetFils)}</td><td>{formatJOD(order.deliveryFils)}</td><td>{dateAr(order.createdAt)}</td><td><StatusBadge status={order.status} /></td><td><button className="btn btn-soft btn-sm" onClick={() => navigate(`/admin/orders/${order.id}`)}>فتح</button></td></tr>)}</tbody></table></div>}</div>;
+  return (
+    <div className="panel">
+      <div className="panel-title">
+        <h2>كل الطلبات</h2>
+        <select
+          className="filter-select"
+          value={filter}
+          onChange={(event) => setFilter(event.target.value)}
+        >
+          <option value="ALL">كل الحالات</option>
+          {Object.entries(statusMeta).map(([key, meta]) => (
+            <option key={key} value={key}>
+              {meta.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      {isLoading ? (
+        <div className="loading-block">
+          <Loader2 className="animate-spin" />
+        </div>
+      ) : !data?.length ? (
+        <div className="empty-state">لا توجد طلبات بهذه الحالة.</div>
+      ) : (
+        <div className="table-wrap">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>رقم الطلب</th>
+                <th>العميل</th>
+                <th>الفئة</th>
+                <th>الميزانية</th>
+                <th>التوصيل</th>
+                <th>التاريخ</th>
+                <th>الحالة</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((order) => (
+                <tr key={order.id}>
+                  <td dir="ltr">{order.orderNumber}</td>
+                  <td>
+                    <strong>{order.customerName}</strong>
+                    <br />
+                    <span
+                      dir="ltr"
+                      style={{ color: "var(--muted)", fontSize: 10 }}
+                    >
+                      {order.phone}
+                    </span>
+                  </td>
+                  <td>{order.categoryName}</td>
+                  <td>{formatJOD(order.budgetFils)}</td>
+                  <td>{formatJOD(order.deliveryFils)}</td>
+                  <td>{dateAr(order.createdAt)}</td>
+                  <td>
+                    <StatusBadge status={order.status} />
+                  </td>
+                  <td>
+                    <button
+                      className="btn btn-soft btn-sm"
+                      onClick={() => navigate(`/admin/orders/${order.id}`)}
+                    >
+                      فتح
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function OrderDetail({ id }: { id: number }) {
-  const [, navigate] = useLocation(); const utils = trpc.useUtils();
+  const [, navigate] = useLocation();
+  const utils = trpc.useUtils();
   const { data, isLoading } = trpc.admin.orderDetail.useQuery({ id });
   const [note, setNote] = useState("");
-  const [salePrice, setSalePrice] = useState(0); const [deliveryFils, setDeliveryFils] = useState(0); const [costs, setCosts] = useState({ boxCostFils: 0, decorationCostFils: 0, packagingCostFils: 0, deliveryCostFils: 0, otherCostFils: 0 });
-  const [items, setItems] = useState<Array<{ name: string; quantity: number; unitCostFils: number }>>([]);
-  useEffect(() => { if (data) { setSalePrice(data.salePriceFils); setDeliveryFils(data.deliveryFils); setCosts({ boxCostFils: data.costs?.boxCostFils ?? 0, decorationCostFils: data.costs?.decorationCostFils ?? 0, packagingCostFils: data.costs?.packagingCostFils ?? 0, deliveryCostFils: data.costs?.deliveryCostFils ?? 0, otherCostFils: data.costs?.otherCostFils ?? 0 }); setItems(data.items.map(item => ({ name: item.name, quantity: item.quantity, unitCostFils: item.unitCostFils }))); } }, [data]);
-  const saveFinance = trpc.admin.updateFinance.useMutation({ onSuccess: async () => { toast.success("تم حفظ التكاليف وحساب الربح."); await utils.admin.orderDetail.invalidate({ id }); await utils.admin.dashboard.invalidate(); }, onError: error => toast.error(error.message) });
-  const updateStatus = trpc.admin.updateStatus.useMutation({ onSuccess: async () => { toast.success("تم تحديث حالة الطلب."); await utils.admin.orderDetail.invalidate({ id }); await utils.admin.orders.invalidate(); await utils.admin.dashboard.invalidate(); }, onError: error => toast.error(error.message) });
-  const addNote = trpc.admin.addNote.useMutation({ onSuccess: async () => { setNote(""); await utils.admin.orderDetail.invalidate({ id }); }, onError: error => toast.error(error.message) });
-  if (isLoading || !data) return <div className="loading-block"><Loader2 className="animate-spin" /> جاري فتح الطلب...</div>;
-  const allowed = data.status === "NEW" ? ["CONFIRMED", "CANCELLED"] : data.status === "CONFIRMED" ? ["OUT_FOR_DELIVERY", "CANCELLED"] : data.status === "OUT_FOR_DELIVERY" ? ["DELIVERED", "CANCELLED"] : [];
-  const updateCost = (key: keyof typeof costs, value: number) => setCosts({ ...costs, [key]: Math.max(0, value) * 1000 });
-  const calculated = (items.reduce((total, item) => total + item.quantity * item.unitCostFils, 0) + Object.values(costs).reduce((total, value) => total + value, 0));
-  return <><div className="toolbar" style={{ marginBottom: 16 }}><button className="btn btn-outline btn-sm" onClick={() => navigate("/admin/orders")}><ArrowRight size={15} /> كل الطلبات</button><span dir="ltr" className="order-number" style={{ margin: 0, padding: "8px 12px" }}>{data.orderNumber}</span><StatusBadge status={data.status} /></div><div className="detail-grid"><div className="panel"><div className="panel-title"><h2>بيانات العميل</h2></div><div className="info-list"><div><span>الاسم</span><strong>{data.customer.fullName}</strong></div><div><span>الهاتف</span><strong dir="ltr">{data.customer.phone}</strong></div><div><span>المنطقة</span><strong>{data.customer.governorate}، {data.customer.area}</strong></div><div><span>العنوان</span><strong>{data.customer.address}</strong></div><div><span>ملاحظات العميل</span><strong>{data.notes || "لا توجد ملاحظات"}</strong></div></div><div style={{ borderTop: "1px solid var(--line)", marginTop: 18, paddingTop: 16 }}><p style={{ fontWeight: 700, fontSize: 12 }}>تحديث حالة الطلب</p><div className="toolbar">{allowed.map(status => <button key={status} className={status === "CANCELLED" ? "btn btn-danger btn-sm" : "btn btn-primary btn-sm"} onClick={() => updateStatus.mutate({ id, status: status as keyof typeof statusMeta })}>{statusMeta[status as keyof typeof statusMeta].label}</button>)}{!allowed.length && <span style={{ color: "var(--muted)", fontSize: 11 }}>هذه الحالة نهائية ولا يمكن تغييرها من واجهة الـ MVP.</span>}</div></div></div>
-  <div className="panel"><div className="panel-title"><h2>تكلفة الطلب وربحيته</h2></div><div className="field"><label>سعر البيع (د.أ)</label><input type="number" min={0} value={salePrice / 1000} onChange={event => setSalePrice(Math.max(0, Number(event.target.value)) * 1000)} /></div><div className="field"><label>سعر التوصيل (د.أ)</label><input type="number" min={0} value={deliveryFils / 1000} onChange={event => setDeliveryFils(Math.max(0, Number(event.target.value)) * 1000)} /></div><div style={{ marginTop: 16 }}><p style={{ fontWeight: 700, fontSize: 12 }}>تفاصيل المنتجات</p>{items.map((item, index) => <div className="field-grid" style={{ marginBottom: 9 }} key={index}><div className="field"><label>اسم المنتج</label><input value={item.name} onChange={event => { const copy = [...items]; copy[index].name = event.target.value; setItems(copy); }} placeholder="اسم المنتج" /></div><div className="field"><label>الكمية</label><input type="number" min={0} value={item.quantity} onChange={event => { const copy = [...items]; copy[index].quantity = Math.max(0, Number(event.target.value)); setItems(copy); }} placeholder="الكمية" /></div><div className="field span-2"><label>تكلفة الوحدة (د.أ)</label><input type="number" min={0} value={item.unitCostFils / 1000} onChange={event => { const copy = [...items]; copy[index].unitCostFils = Math.max(0, Number(event.target.value)) * 1000; setItems(copy); }} placeholder="تكلفة الوحدة بالدينار" /></div><button className="btn btn-danger btn-sm" style={{ gridColumn: "span 2" }} onClick={() => setItems(items.filter((_, row) => row !== index))}><Trash2 size={14} /> حذف</button></div>)}<button className="btn btn-outline btn-sm" onClick={() => setItems([...items, { name: "", quantity: 1, unitCostFils: 0 }])}><Plus size={14} /> إضافة منتج</button></div><div className="field-grid" style={{ marginTop: 16 }}>{[["boxCostFils", "تكلفة البوكس"], ["decorationCostFils", "تكلفة الزينة"], ["packagingCostFils", "تكلفة التغليف"], ["deliveryCostFils", "تكلفة التوصيل"], ["otherCostFils", "تكلفة أخرى"]].map(([key, label]) => <div className="field" key={key}><label>{label} (د.أ)</label><input type="number" min={0} value={costs[key as keyof typeof costs] / 1000} onChange={event => updateCost(key as keyof typeof costs, Number(event.target.value))} /></div>)}</div><div className="finance-summary"><div>سعر البيع<strong>{formatJOD(salePrice)}</strong></div><div>إجمالي التكلفة<strong>{formatJOD(calculated)}</strong></div><div>الربح<strong style={{ color: salePrice - calculated >= 0 ? "#137d48" : "#b4234d" }}>{formatJOD(salePrice - calculated)}</strong></div></div><button className="btn btn-primary" style={{ marginTop: 16 }} disabled={saveFinance.isPending} onClick={() => saveFinance.mutate({ id, salePriceFils: salePrice, deliveryFils, ...costs, items })}><Save size={15} /> حفظ التفاصيل المالية</button></div></div><div className="detail-grid" style={{ marginTop: 15 }}><div className="panel"><div className="panel-title"><h2>ملاحظات داخلية</h2></div><div className="field"><textarea value={note} onChange={event => setNote(event.target.value)} placeholder="مثلاً: تم شراء المنتجات" /></div><button className="btn btn-soft btn-sm" style={{ marginTop: 10 }} onClick={() => note.trim() && addNote.mutate({ id, body: note })}>إضافة ملاحظة</button><div style={{ display: "grid", gap: 9, marginTop: 15 }}>{data.internalNotes.length ? data.internalNotes.map(item => <div className="note" key={item.id}>{item.body}<small>{item.author} — {dateAr(item.createdAt)}</small></div>) : <div className="empty-state">لا توجد ملاحظات داخلية.</div>}</div></div><div className="panel"><div className="panel-title"><h2>سجل الحالة</h2></div><div style={{ display: "grid", gap: 10 }}>{data.history.map(item => <div className="note" key={item.id}><StatusBadge status={item.toStatus} /><small>{item.changedBy} — {dateAr(item.createdAt)}</small></div>)}</div></div></div></>;
+  const [salePrice, setSalePrice] = useState(0);
+  const [deliveryFils, setDeliveryFils] = useState(0);
+  const [costs, setCosts] = useState({
+    boxCostFils: 0,
+    decorationCostFils: 0,
+    packagingCostFils: 0,
+    deliveryCostFils: 0,
+    otherCostFils: 0,
+  });
+  const [items, setItems] = useState<
+    Array<{ name: string; quantity: number; unitCostFils: number }>
+  >([]);
+  useEffect(() => {
+    if (data) {
+      setSalePrice(data.salePriceFils);
+      setDeliveryFils(data.deliveryFils);
+      setCosts({
+        boxCostFils: data.costs?.boxCostFils ?? 0,
+        decorationCostFils: data.costs?.decorationCostFils ?? 0,
+        packagingCostFils: data.costs?.packagingCostFils ?? 0,
+        deliveryCostFils: data.costs?.deliveryCostFils ?? 0,
+        otherCostFils: data.costs?.otherCostFils ?? 0,
+      });
+      setItems(
+        data.items.map((item) => ({
+          name: item.name,
+          quantity: item.quantity,
+          unitCostFils: item.unitCostFils,
+        })),
+      );
+    }
+  }, [data]);
+  const saveFinance = trpc.admin.updateFinance.useMutation({
+    onSuccess: async () => {
+      toast.success("تم حفظ التكاليف وحساب الربح.");
+      await utils.admin.orderDetail.invalidate({ id });
+      await utils.admin.dashboard.invalidate();
+    },
+    onError: (error) => toast.error(error.message),
+  });
+  const updateStatus = trpc.admin.updateStatus.useMutation({
+    onSuccess: async () => {
+      toast.success("تم تحديث حالة الطلب.");
+      await utils.admin.orderDetail.invalidate({ id });
+      await utils.admin.orders.invalidate();
+      await utils.admin.dashboard.invalidate();
+    },
+    onError: (error) => toast.error(error.message),
+  });
+  const addNote = trpc.admin.addNote.useMutation({
+    onSuccess: async () => {
+      setNote("");
+      await utils.admin.orderDetail.invalidate({ id });
+    },
+    onError: (error) => toast.error(error.message),
+  });
+  if (isLoading || !data)
+    return (
+      <div className="loading-block">
+        <Loader2 className="animate-spin" /> جاري فتح الطلب...
+      </div>
+    );
+  const allowed =
+    data.status === "NEW"
+      ? ["CONFIRMED", "CANCELLED"]
+      : data.status === "CONFIRMED"
+        ? ["OUT_FOR_DELIVERY", "CANCELLED"]
+        : data.status === "OUT_FOR_DELIVERY"
+          ? ["DELIVERED", "CANCELLED"]
+          : [];
+  const updateCost = (key: keyof typeof costs, value: number) =>
+    setCosts({ ...costs, [key]: Math.max(0, value) * 1000 });
+  const calculated =
+    items.reduce(
+      (total, item) => total + item.quantity * item.unitCostFils,
+      0,
+    ) + Object.values(costs).reduce((total, value) => total + value, 0);
+  return (
+    <>
+      <div className="toolbar" style={{ marginBottom: 16 }}>
+        <button
+          className="btn btn-outline btn-sm"
+          onClick={() => navigate("/admin/orders")}
+        >
+          <ArrowRight size={15} /> كل الطلبات
+        </button>
+        <span
+          dir="ltr"
+          className="order-number"
+          style={{ margin: 0, padding: "8px 12px" }}
+        >
+          {data.orderNumber}
+        </span>
+        <StatusBadge status={data.status} />
+      </div>
+      <div className="detail-grid">
+        <div className="panel">
+          <div className="panel-title">
+            <h2>بيانات العميل</h2>
+          </div>
+          <div className="info-list">
+            <div>
+              <span>الاسم</span>
+              <strong>{data.customer.fullName}</strong>
+            </div>
+            <div>
+              <span>الهاتف</span>
+              <strong dir="ltr">{data.customer.phone}</strong>
+            </div>
+            <div>
+              <span>المنطقة</span>
+              <strong>
+                {data.customer.governorate}، {data.customer.area}
+              </strong>
+            </div>
+            <div>
+              <span>العنوان</span>
+              <strong>{data.customer.address}</strong>
+            </div>
+            <div>
+              <span>ملاحظات العميل</span>
+              <strong>{data.notes || "لا توجد ملاحظات"}</strong>
+            </div>
+          </div>
+          <div
+            style={{
+              borderTop: "1px solid var(--line)",
+              marginTop: 18,
+              paddingTop: 16,
+            }}
+          >
+            <p style={{ fontWeight: 700, fontSize: 12 }}>تحديث حالة الطلب</p>
+            <div className="toolbar">
+              {allowed.map((status) => (
+                <button
+                  key={status}
+                  className={
+                    status === "CANCELLED"
+                      ? "btn btn-danger btn-sm"
+                      : "btn btn-primary btn-sm"
+                  }
+                  onClick={() =>
+                    updateStatus.mutate({
+                      id,
+                      status: status as keyof typeof statusMeta,
+                    })
+                  }
+                >
+                  {statusMeta[status as keyof typeof statusMeta].label}
+                </button>
+              ))}
+              {!allowed.length && (
+                <span style={{ color: "var(--muted)", fontSize: 11 }}>
+                  هذه الحالة نهائية ولا يمكن تغييرها من واجهة الـ MVP.
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="panel">
+          <div className="panel-title">
+            <h2>تكلفة الطلب وربحيته</h2>
+          </div>
+          <div className="field">
+            <label>سعر البيع (د.أ)</label>
+            <input
+              type="number"
+              min={0}
+              value={salePrice / 1000}
+              onChange={(event) =>
+                setSalePrice(Math.max(0, Number(event.target.value)) * 1000)
+              }
+            />
+          </div>
+          <div className="field">
+            <label>سعر التوصيل (د.أ)</label>
+            <input
+              type="number"
+              min={0}
+              value={deliveryFils / 1000}
+              onChange={(event) =>
+                setDeliveryFils(Math.max(0, Number(event.target.value)) * 1000)
+              }
+            />
+          </div>
+          <div style={{ marginTop: 16 }}>
+            <p style={{ fontWeight: 700, fontSize: 12 }}>تفاصيل المنتجات</p>
+            {items.map((item, index) => (
+              <div
+                className="field-grid"
+                style={{ marginBottom: 9 }}
+                key={index}
+              >
+                <div className="field">
+                  <label>اسم المنتج</label>
+                  <input
+                    value={item.name}
+                    onChange={(event) => {
+                      const copy = [...items];
+                      copy[index].name = event.target.value;
+                      setItems(copy);
+                    }}
+                    placeholder="اسم المنتج"
+                  />
+                </div>
+                <div className="field">
+                  <label>الكمية</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={item.quantity}
+                    onChange={(event) => {
+                      const copy = [...items];
+                      copy[index].quantity = Math.max(
+                        0,
+                        Number(event.target.value),
+                      );
+                      setItems(copy);
+                    }}
+                    placeholder="الكمية"
+                  />
+                </div>
+                <div className="field span-2">
+                  <label>تكلفة الوحدة (د.أ)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={item.unitCostFils / 1000}
+                    onChange={(event) => {
+                      const copy = [...items];
+                      copy[index].unitCostFils =
+                        Math.max(0, Number(event.target.value)) * 1000;
+                      setItems(copy);
+                    }}
+                    placeholder="تكلفة الوحدة بالدينار"
+                  />
+                </div>
+                <button
+                  className="btn btn-danger btn-sm"
+                  style={{ gridColumn: "span 2" }}
+                  onClick={() =>
+                    setItems(items.filter((_, row) => row !== index))
+                  }
+                >
+                  <Trash2 size={14} /> حذف
+                </button>
+              </div>
+            ))}
+            <button
+              className="btn btn-outline btn-sm"
+              onClick={() =>
+                setItems([...items, { name: "", quantity: 1, unitCostFils: 0 }])
+              }
+            >
+              <Plus size={14} /> إضافة منتج
+            </button>
+          </div>
+          <div className="field-grid" style={{ marginTop: 16 }}>
+            {[
+              ["boxCostFils", "تكلفة البوكس"],
+              ["decorationCostFils", "تكلفة الزينة"],
+              ["packagingCostFils", "تكلفة التغليف"],
+              ["deliveryCostFils", "تكلفة التوصيل"],
+              ["otherCostFils", "تكلفة أخرى"],
+            ].map(([key, label]) => (
+              <div className="field" key={key}>
+                <label>{label} (د.أ)</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={costs[key as keyof typeof costs] / 1000}
+                  onChange={(event) =>
+                    updateCost(
+                      key as keyof typeof costs,
+                      Number(event.target.value),
+                    )
+                  }
+                />
+              </div>
+            ))}
+          </div>
+          <div className="finance-summary">
+            <div>
+              سعر البيع<strong>{formatJOD(salePrice)}</strong>
+            </div>
+            <div>
+              إجمالي التكلفة<strong>{formatJOD(calculated)}</strong>
+            </div>
+            <div>
+              الربح
+              <strong
+                style={{
+                  color: salePrice - calculated >= 0 ? "#137d48" : "#b4234d",
+                }}
+              >
+                {formatJOD(salePrice - calculated)}
+              </strong>
+            </div>
+          </div>
+          <button
+            className="btn btn-primary"
+            style={{ marginTop: 16 }}
+            disabled={saveFinance.isPending}
+            onClick={() =>
+              saveFinance.mutate({
+                id,
+                salePriceFils: salePrice,
+                deliveryFils,
+                ...costs,
+                items,
+              })
+            }
+          >
+            <Save size={15} /> حفظ التفاصيل المالية
+          </button>
+        </div>
+      </div>
+      <div className="detail-grid" style={{ marginTop: 15 }}>
+        <div className="panel">
+          <div className="panel-title">
+            <h2>ملاحظات داخلية</h2>
+          </div>
+          <div className="field">
+            <textarea
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+              placeholder="مثلاً: تم شراء المنتجات"
+            />
+          </div>
+          <button
+            className="btn btn-soft btn-sm"
+            style={{ marginTop: 10 }}
+            onClick={() => note.trim() && addNote.mutate({ id, body: note })}
+          >
+            إضافة ملاحظة
+          </button>
+          <div style={{ display: "grid", gap: 9, marginTop: 15 }}>
+            {data.internalNotes.length ? (
+              data.internalNotes.map((item) => (
+                <div className="note" key={item.id}>
+                  {item.body}
+                  <small>
+                    {item.author} — {dateAr(item.createdAt)}
+                  </small>
+                </div>
+              ))
+            ) : (
+              <div className="empty-state">لا توجد ملاحظات داخلية.</div>
+            )}
+          </div>
+        </div>
+        <div className="panel">
+          <div className="panel-title">
+            <h2>سجل الحالة</h2>
+          </div>
+          <div style={{ display: "grid", gap: 10 }}>
+            {data.history.map((item) => (
+              <div className="note" key={item.id}>
+                <StatusBadge status={item.toStatus} />
+                <small>
+                  {item.changedBy} — {dateAr(item.createdAt)}
+                </small>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </>
+  );
 }
 
 function Categories() {
-  const utils = trpc.useUtils(); const { data, isLoading } = trpc.admin.categories.useQuery();
-  const [editing, setEditing] = useState<any>(null); const blank = { name: "", image: "Gift", active: true, sortOrder: 1 };
-  const save = trpc.admin.saveCategory.useMutation({ onSuccess: async () => { toast.success("تم حفظ الفئة."); setEditing(null); await utils.admin.categories.invalidate(); await utils.storefront.bootstrap.invalidate(); }, onError: error => toast.error(error.message) });
-  const remove = trpc.admin.deleteCategory.useMutation({ onSuccess: async () => { toast.success("تم حذف الفئة."); await utils.admin.categories.invalidate(); }, onError: error => toast.error(error.message) });
+  const utils = trpc.useUtils();
+  const { data, isLoading } = trpc.admin.categories.useQuery();
+  const [editing, setEditing] = useState<any>(null);
+  const blank = { name: "", image: "Gift", active: true, sortOrder: 1 };
+  const save = trpc.admin.saveCategory.useMutation({
+    onSuccess: async () => {
+      toast.success("تم حفظ الفئة.");
+      setEditing(null);
+      await utils.admin.categories.invalidate();
+      await utils.storefront.bootstrap.invalidate();
+    },
+    onError: (error) => toast.error(error.message),
+  });
+  const remove = trpc.admin.deleteCategory.useMutation({
+    onSuccess: async () => {
+      toast.success("تم حذف الفئة.");
+      await utils.admin.categories.invalidate();
+    },
+    onError: (error) => toast.error(error.message),
+  });
   const form = editing || blank;
-  return <div className="detail-grid"><div className="panel"><div className="panel-title"><h2>{editing ? "تعديل فئة" : "إضافة فئة"}</h2></div><div className="field-grid"><Field label="اسم الفئة" value={form.name} onChange={value => setEditing({ ...form, name: value })} /><div className="field"><label>الأيقونة</label><select value={form.image} onChange={event => setEditing({ ...form, image: event.target.value })}>{categoryIconOptions.map(icon => <option key={icon}>{icon}</option>)}</select></div><Field label="الترتيب" value={String(form.sortOrder)} onChange={value => setEditing({ ...form, sortOrder: Number(value) })} type="number" /><div className="field"><label>الحالة</label><select value={form.active ? "true" : "false"} onChange={event => setEditing({ ...form, active: event.target.value === "true" })}><option value="true">مفعلة</option><option value="false">معطلة</option></select></div></div><div className="toolbar" style={{ marginTop: 18 }}><button className="btn btn-primary" onClick={() => save.mutate(editing ? editing : form)}><Save size={15} /> حفظ</button>{editing && <button className="btn btn-outline" onClick={() => setEditing(null)}>إلغاء</button>}</div></div><div className="panel"><div className="panel-title"><h2>الفئات الحالية</h2></div>{isLoading ? <div className="loading-block"><Loader2 className="animate-spin" /></div> : <div style={{ display: "grid", gap: 8 }}>{data?.map(category => <div className="note" key={category.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}><div style={{ display: "flex", alignItems: "center", gap: 10 }}><span className="category-icon" style={{ margin: 0, width: 34, height: 34 }}><CategoryIcon name={category.image} /></span><div><strong>{category.name}</strong><small>{category.active ? "مفعلة" : "معطلة"} — ترتيب {category.sortOrder}</small></div></div><div className="toolbar"><button className="btn btn-soft btn-sm" onClick={() => setEditing(category)}>تعديل</button><button className="btn btn-danger btn-sm" onClick={() => remove.mutate({ id: category.id })}><Trash2 size={14} /></button></div></div>)}</div>}</div></div>;
+  return (
+    <div className="detail-grid">
+      <div className="panel">
+        <div className="panel-title">
+          <h2>{editing ? "تعديل فئة" : "إضافة فئة"}</h2>
+        </div>
+        <div className="field-grid">
+          <Field
+            label="اسم الفئة"
+            value={form.name}
+            onChange={(value) => setEditing({ ...form, name: value })}
+          />
+          <div className="field">
+            <label>الأيقونة</label>
+            <select
+              value={form.image}
+              onChange={(event) =>
+                setEditing({ ...form, image: event.target.value })
+              }
+            >
+              {categoryIconOptions.map((icon) => (
+                <option key={icon}>{icon}</option>
+              ))}
+            </select>
+          </div>
+          <Field
+            label="الترتيب"
+            value={String(form.sortOrder)}
+            onChange={(value) =>
+              setEditing({ ...form, sortOrder: Number(value) })
+            }
+            type="number"
+          />
+          <div className="field">
+            <label>الحالة</label>
+            <select
+              value={form.active ? "true" : "false"}
+              onChange={(event) =>
+                setEditing({ ...form, active: event.target.value === "true" })
+              }
+            >
+              <option value="true">مفعلة</option>
+              <option value="false">معطلة</option>
+            </select>
+          </div>
+        </div>
+        <div className="toolbar" style={{ marginTop: 18 }}>
+          <button
+            className="btn btn-primary"
+            onClick={() => save.mutate(editing ? editing : form)}
+          >
+            <Save size={15} /> حفظ
+          </button>
+          {editing && (
+            <button
+              className="btn btn-outline"
+              onClick={() => setEditing(null)}
+            >
+              إلغاء
+            </button>
+          )}
+        </div>
+      </div>
+      <div className="panel">
+        <div className="panel-title">
+          <h2>الفئات الحالية</h2>
+        </div>
+        {isLoading ? (
+          <div className="loading-block">
+            <Loader2 className="animate-spin" />
+          </div>
+        ) : (
+          <div style={{ display: "grid", gap: 8 }}>
+            {data?.map((category) => (
+              <div
+                className="note"
+                key={category.id}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 8,
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span
+                    className="category-icon"
+                    style={{ margin: 0, width: 34, height: 34 }}
+                  >
+                    <CategoryIcon name={category.image} />
+                  </span>
+                  <div>
+                    <strong>{category.name}</strong>
+                    <small>
+                      {category.active ? "مفعلة" : "معطلة"} — ترتيب{" "}
+                      {category.sortOrder}
+                    </small>
+                  </div>
+                </div>
+                <div className="toolbar">
+                  <button
+                    className="btn btn-soft btn-sm"
+                    onClick={() => setEditing(category)}
+                  >
+                    تعديل
+                  </button>
+                  <button
+                    className="btn btn-danger btn-sm"
+                    onClick={() => remove.mutate({ id: category.id })}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 function Settings() {
-  const utils = trpc.useUtils(); const { data } = trpc.admin.settings.useQuery(); const [values, setValues] = useState<Record<string, string>>({}); useEffect(() => { if (data) setValues(data); }, [data]);
-  const update = trpc.admin.updateSettings.useMutation({ onSuccess: async () => { toast.success("تم حفظ إعدادات الموقع."); await utils.admin.settings.invalidate(); await utils.storefront.bootstrap.invalidate(); }, onError: error => toast.error(error.message) });
-  const set = (key: string, value: string) => setValues({ ...values, [key]: value });
-  return <div className="panel"><div className="panel-title"><h2>محتوى وهوية المتجر</h2></div><div className="settings-grid"><Field label="اسم العلامة" value={values.brandName || ""} onChange={value => set("brandName", value)} /><Field label="نص زر الدعوة" value={values.ctaText || ""} onChange={value => set("ctaText", value)} /><Field label="عنوان الصفحة الرئيسية" value={values.homeTitle || ""} onChange={value => set("homeTitle", value)} className="span-2" /><Field label="الوصف" value={values.homeDescription || ""} onChange={value => set("homeDescription", value)} className="span-2" /><div className="field"><label>اللون الأساسي</label><input className="color-input" type="color" value={values.primaryColor || "#6c5ce7"} onChange={event => set("primaryColor", event.target.value)} /></div><div className="field"><label>اللون الثانوي</label><input className="color-input" type="color" value={values.secondaryColor || "#f2b5d4"} onChange={event => set("secondaryColor", event.target.value)} /></div><div className="field"><label>لون الخلفية</label><input className="color-input" type="color" value={values.backgroundColor || "#fcfbff"} onChange={event => set("backgroundColor", event.target.value)} /></div><Field label="استدارة البطاقات (px)" value={values.borderRadius || "18"} onChange={value => set("borderRadius", value)} type="number" /><Field label="خيارات الميزانية بالفلس، مفصولة بفواصل" value={values.budgets || ""} onChange={value => set("budgets", value)} className="span-2" /></div><button className="btn btn-primary" style={{ marginTop: 20 }} disabled={update.isPending} onClick={() => update.mutate({ values })}><Save size={15} /> حفظ التغييرات</button></div>;
+  const utils = trpc.useUtils();
+  const { data } = trpc.admin.settings.useQuery();
+  const [values, setValues] = useState<Record<string, string>>({});
+  useEffect(() => {
+    if (data) setValues(data);
+  }, [data]);
+  const update = trpc.admin.updateSettings.useMutation({
+    onSuccess: async () => {
+      toast.success("تم حفظ إعدادات الموقع.");
+      await utils.admin.settings.invalidate();
+      await utils.storefront.bootstrap.invalidate();
+    },
+    onError: (error) => toast.error(error.message),
+  });
+  const set = (key: string, value: string) =>
+    setValues({ ...values, [key]: value });
+  return (
+    <div className="panel">
+      <div className="panel-title">
+        <h2>محتوى وهوية المتجر</h2>
+      </div>
+      <div className="settings-grid">
+        <Field
+          label="اسم العلامة"
+          value={values.brandName || ""}
+          onChange={(value) => set("brandName", value)}
+        />
+        <Field
+          label="نص زر الدعوة"
+          value={values.ctaText || ""}
+          onChange={(value) => set("ctaText", value)}
+        />
+        <Field
+          label="عنوان الصفحة الرئيسية"
+          value={values.homeTitle || ""}
+          onChange={(value) => set("homeTitle", value)}
+          className="span-2"
+        />
+        <Field
+          label="الوصف"
+          value={values.homeDescription || ""}
+          onChange={(value) => set("homeDescription", value)}
+          className="span-2"
+        />
+        <div className="field">
+          <label>اللون الأساسي</label>
+          <input
+            className="color-input"
+            type="color"
+            value={values.primaryColor || "#6c5ce7"}
+            onChange={(event) => set("primaryColor", event.target.value)}
+          />
+        </div>
+        <div className="field">
+          <label>اللون الثانوي</label>
+          <input
+            className="color-input"
+            type="color"
+            value={values.secondaryColor || "#f2b5d4"}
+            onChange={(event) => set("secondaryColor", event.target.value)}
+          />
+        </div>
+        <div className="field">
+          <label>لون الخلفية</label>
+          <input
+            className="color-input"
+            type="color"
+            value={values.backgroundColor || "#fcfbff"}
+            onChange={(event) => set("backgroundColor", event.target.value)}
+          />
+        </div>
+        <Field
+          label="استدارة البطاقات (px)"
+          value={values.borderRadius || "18"}
+          onChange={(value) => set("borderRadius", value)}
+          type="number"
+        />
+        <Field
+          label="خيارات الميزانية بالفلس، مفصولة بفواصل"
+          value={values.budgets || ""}
+          onChange={(value) => set("budgets", value)}
+          className="span-2"
+        />
+      </div>
+      <button
+        className="btn btn-primary"
+        style={{ marginTop: 20 }}
+        disabled={update.isPending}
+        onClick={() => update.mutate({ values })}
+      >
+        <Save size={15} /> حفظ التغييرات
+      </button>
+    </div>
+  );
 }
 
 function Shipping() {
-  const utils = trpc.useUtils(); const { data } = trpc.admin.settings.useQuery(); const [values, setValues] = useState<Record<string, string>>({}); useEffect(() => { if (data) setValues(data); }, [data]);
-  const update = trpc.admin.updateSettings.useMutation({ onSuccess: async () => { toast.success("تم حفظ أسعار التوصيل."); await utils.admin.settings.invalidate(); await utils.storefront.bootstrap.invalidate(); }, onError: error => toast.error(error.message) });
-  let rateMap: Record<string, string> = {}; try { rateMap = JSON.parse(values.shippingRates || "{}"); } catch { rateMap = {}; }
-  const setRate = (governorate: string, value: string) => setValues({ ...values, shippingRates: JSON.stringify({ ...rateMap, [governorate]: value }) });
-  return <div className="panel"><div className="panel-title"><div><h2>أسعار التوصيل حسب المحافظة</h2><p className="section-subtitle">حدد السعر الذي يظهر للزبون أثناء إنشاء الطلب.</p></div><span className="help">بالدينار الأردني</span></div><div className="settings-grid">{governorates.map(governorate => <Field key={governorate} label={governorate} value={rateMap[governorate] || "0"} onChange={value => setRate(governorate, value)} type="number" />)}</div><button className="btn btn-primary" style={{ marginTop: 20 }} disabled={update.isPending} onClick={() => update.mutate({ values: { shippingRates: values.shippingRates || "{}" } })}><Save size={15} /> حفظ أسعار التوصيل</button></div>;
+  const utils = trpc.useUtils();
+  const { data } = trpc.admin.settings.useQuery();
+  const [values, setValues] = useState<Record<string, string>>({});
+  useEffect(() => {
+    if (data) setValues(data);
+  }, [data]);
+  const update = trpc.admin.updateSettings.useMutation({
+    onSuccess: async () => {
+      toast.success("تم حفظ أسعار التوصيل.");
+      await utils.admin.settings.invalidate();
+      await utils.storefront.bootstrap.invalidate();
+    },
+    onError: (error) => toast.error(error.message),
+  });
+  let rateMap: Record<string, string> = {};
+  try {
+    rateMap = JSON.parse(values.shippingRates || "{}");
+  } catch {
+    rateMap = {};
+  }
+  const setRate = (governorate: string, value: string) =>
+    setValues({
+      ...values,
+      shippingRates: JSON.stringify({ ...rateMap, [governorate]: value }),
+    });
+  return (
+    <div className="panel">
+      <div className="panel-title">
+        <div>
+          <h2>أسعار التوصيل حسب المحافظة</h2>
+          <p className="section-subtitle">
+            حدد السعر الذي يظهر للزبون أثناء إنشاء الطلب.
+          </p>
+        </div>
+        <span className="help">بالدينار الأردني</span>
+      </div>
+      <div className="settings-grid">
+        {governorates.map((governorate) => (
+          <Field
+            key={governorate}
+            label={governorate}
+            value={rateMap[governorate] || "0"}
+            onChange={(value) => setRate(governorate, value)}
+            type="number"
+          />
+        ))}
+      </div>
+      <button
+        className="btn btn-primary"
+        style={{ marginTop: 20 }}
+        disabled={update.isPending}
+        onClick={() =>
+          update.mutate({
+            values: { shippingRates: values.shippingRates || "{}" },
+          })
+        }
+      >
+        <Save size={15} /> حفظ أسعار التوصيل
+      </button>
+    </div>
+  );
 }
 
 function Expenses() {
-  const utils = trpc.useUtils(); const { data, isLoading } = trpc.admin.expenses.useQuery(); const [form, setForm] = useState<any>({ name: "", category: "تغليف", amount: "", date: new Date().toISOString().slice(0, 10), notes: "" });
-  const save = trpc.admin.saveExpense.useMutation({ onSuccess: async () => { toast.success("تم حفظ المصروف."); setForm({ name: "", category: "تغليف", amount: "", date: new Date().toISOString().slice(0, 10), notes: "" }); await utils.admin.expenses.invalidate(); await utils.admin.dashboard.invalidate(); }, onError: error => toast.error(error.message) }); const remove = trpc.admin.deleteExpense.useMutation({ onSuccess: async () => { await utils.admin.expenses.invalidate(); await utils.admin.dashboard.invalidate(); }, onError: error => toast.error(error.message) });
+  const utils = trpc.useUtils();
+  const { data, isLoading } = trpc.admin.expenses.useQuery();
+  const [form, setForm] = useState<any>({
+    name: "",
+    category: "تغليف",
+    amount: "",
+    date: new Date().toISOString().slice(0, 10),
+    notes: "",
+  });
+  const save = trpc.admin.saveExpense.useMutation({
+    onSuccess: async () => {
+      toast.success("تم حفظ المصروف.");
+      setForm({
+        name: "",
+        category: "تغليف",
+        amount: "",
+        date: new Date().toISOString().slice(0, 10),
+        notes: "",
+      });
+      await utils.admin.expenses.invalidate();
+      await utils.admin.dashboard.invalidate();
+    },
+    onError: (error) => toast.error(error.message),
+  });
+  const remove = trpc.admin.deleteExpense.useMutation({
+    onSuccess: async () => {
+      await utils.admin.expenses.invalidate();
+      await utils.admin.dashboard.invalidate();
+    },
+    onError: (error) => toast.error(error.message),
+  });
   const total = data?.reduce((sum, item) => sum + item.amountFils, 0) || 0;
-  return <div className="detail-grid"><div className="panel"><div className="panel-title"><h2>{form.id ? "تعديل مصروف" : "إضافة مصروف"}</h2></div><div className="field-grid"><Field label="اسم المصروف" value={form.name} onChange={value => setForm({ ...form, name: value })} /><div className="field"><label>التصنيف</label><select value={form.category} onChange={event => setForm({ ...form, category: event.target.value })}>{["إعلانات", "تغليف", "شحن", "مستلزمات", "مصاريف تشغيل", "أخرى"].map(item => <option key={item}>{item}</option>)}</select></div><Field label="المبلغ بالدينار" value={form.amount} onChange={value => setForm({ ...form, amount: value })} type="number" /><div className="field"><label>التاريخ</label><input type="date" value={form.date} onChange={event => setForm({ ...form, date: event.target.value })} /></div><Field label="ملاحظات" value={form.notes} onChange={value => setForm({ ...form, notes: value })} className="span-2" /></div><div className="toolbar" style={{ marginTop: 18 }}><button className="btn btn-primary" onClick={() => save.mutate({ id: form.id, name: form.name, category: form.category, amountFils: Math.round(Number(form.amount) * 1000), expenseDate: new Date(form.date), notes: form.notes || undefined })}><Save size={15} /> حفظ</button>{form.id && <button className="btn btn-outline" onClick={() => setForm({ name: "", category: "تغليف", amount: "", date: new Date().toISOString().slice(0, 10), notes: "" })}>إلغاء</button>}</div></div><div className="panel"><div className="panel-title"><h2>سجل المصاريف</h2><strong>{formatJOD(total)}</strong></div>{isLoading ? <div className="loading-block"><Loader2 className="animate-spin" /></div> : <div className="table-wrap"><table className="data-table"><thead><tr><th>المصروف</th><th>التصنيف</th><th>المبلغ</th><th>التاريخ</th><th></th></tr></thead><tbody>{data?.map(item => <tr key={item.id}><td>{item.name}</td><td>{item.category}</td><td>{formatJOD(item.amountFils)}</td><td>{dateAr(item.expenseDate)}</td><td><div className="toolbar"><button className="btn btn-soft btn-sm" onClick={() => setForm({ id: item.id, name: item.name, category: item.category, amount: String(item.amountFils / 1000), date: new Date(item.expenseDate).toISOString().slice(0, 10), notes: item.notes || "" })}>تعديل</button><button className="btn btn-danger btn-sm" onClick={() => remove.mutate({ id: item.id })}><Trash2 size={14} /></button></div></td></tr>)}</tbody></table></div>}</div></div>;
+  return (
+    <div className="detail-grid">
+      <div className="panel">
+        <div className="panel-title">
+          <h2>{form.id ? "تعديل مصروف" : "إضافة مصروف"}</h2>
+        </div>
+        <div className="field-grid">
+          <Field
+            label="اسم المصروف"
+            value={form.name}
+            onChange={(value) => setForm({ ...form, name: value })}
+          />
+          <div className="field">
+            <label>التصنيف</label>
+            <select
+              value={form.category}
+              onChange={(event) =>
+                setForm({ ...form, category: event.target.value })
+              }
+            >
+              {[
+                "إعلانات",
+                "تغليف",
+                "شحن",
+                "مستلزمات",
+                "مصاريف تشغيل",
+                "أخرى",
+              ].map((item) => (
+                <option key={item}>{item}</option>
+              ))}
+            </select>
+          </div>
+          <Field
+            label="المبلغ بالدينار"
+            value={form.amount}
+            onChange={(value) => setForm({ ...form, amount: value })}
+            type="number"
+          />
+          <div className="field">
+            <label>التاريخ</label>
+            <input
+              type="date"
+              value={form.date}
+              onChange={(event) =>
+                setForm({ ...form, date: event.target.value })
+              }
+            />
+          </div>
+          <Field
+            label="ملاحظات"
+            value={form.notes}
+            onChange={(value) => setForm({ ...form, notes: value })}
+            className="span-2"
+          />
+        </div>
+        <div className="toolbar" style={{ marginTop: 18 }}>
+          <button
+            className="btn btn-primary"
+            onClick={() =>
+              save.mutate({
+                id: form.id,
+                name: form.name,
+                category: form.category,
+                amountFils: Math.round(Number(form.amount) * 1000),
+                expenseDate: new Date(form.date),
+                notes: form.notes || undefined,
+              })
+            }
+          >
+            <Save size={15} /> حفظ
+          </button>
+          {form.id && (
+            <button
+              className="btn btn-outline"
+              onClick={() =>
+                setForm({
+                  name: "",
+                  category: "تغليف",
+                  amount: "",
+                  date: new Date().toISOString().slice(0, 10),
+                  notes: "",
+                })
+              }
+            >
+              إلغاء
+            </button>
+          )}
+        </div>
+      </div>
+      <div className="panel">
+        <div className="panel-title">
+          <h2>سجل المصاريف</h2>
+          <strong>{formatJOD(total)}</strong>
+        </div>
+        {isLoading ? (
+          <div className="loading-block">
+            <Loader2 className="animate-spin" />
+          </div>
+        ) : (
+          <div className="table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>المصروف</th>
+                  <th>التصنيف</th>
+                  <th>المبلغ</th>
+                  <th>التاريخ</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {data?.map((item) => (
+                  <tr key={item.id}>
+                    <td>{item.name}</td>
+                    <td>{item.category}</td>
+                    <td>{formatJOD(item.amountFils)}</td>
+                    <td>{dateAr(item.expenseDate)}</td>
+                    <td>
+                      <div className="toolbar">
+                        <button
+                          className="btn btn-soft btn-sm"
+                          onClick={() =>
+                            setForm({
+                              id: item.id,
+                              name: item.name,
+                              category: item.category,
+                              amount: String(item.amountFils / 1000),
+                              date: new Date(item.expenseDate)
+                                .toISOString()
+                                .slice(0, 10),
+                              notes: item.notes || "",
+                            })
+                          }
+                        >
+                          تعديل
+                        </button>
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() => remove.mutate({ id: item.id })}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 function WarehousePage() {
-  const utils = trpc.useUtils(); const { data, isLoading } = trpc.admin.warehouse.useQuery(); const { data: categories } = trpc.admin.categories.useQuery();
-  const [form, setForm] = useState<any>({ name: "", categoryId: null, quantity: "", unitCost: "" }); const [categoryFilter, setCategoryFilter] = useState("ALL"); const [minPrice, setMinPrice] = useState(""); const [maxPrice, setMaxPrice] = useState("");
-  const save = trpc.admin.saveWarehouseProduct.useMutation({ onSuccess: async () => { toast.success("تم حفظ المنتج."); setForm({ name: "", categoryId: null, quantity: "", unitCost: "" }); await utils.admin.warehouse.invalidate(); }, onError: error => toast.error(error.message) }); const remove = trpc.admin.deleteWarehouseProduct.useMutation({ onSuccess: async () => { await utils.admin.warehouse.invalidate(); }, onError: error => toast.error(error.message) });
-  const filtered = (data ?? []).filter(item => (categoryFilter === "ALL" || String(item.categoryId ?? "") === categoryFilter) && (!minPrice || item.unitCostFils >= Number(minPrice) * 1000) && (!maxPrice || item.unitCostFils <= Number(maxPrice) * 1000));
-  const value = filtered.reduce((sum, item) => sum + item.quantity * item.unitCostFils, 0);
-  const reset = () => setForm({ name: "", categoryId: null, quantity: "", unitCost: "" });
-  return <div className="detail-grid"><div className="panel"><div className="panel-title"><h2>{form.id ? "تعديل منتج" : "إضافة منتج"}</h2></div><div className="field-grid"><Field label="اسم المنتج" value={form.name} onChange={value => setForm({ ...form, name: value })} className="span-2" /><div className="field"><label>الفئة</label><select value={form.categoryId ?? ""} onChange={event => setForm({ ...form, categoryId: event.target.value ? Number(event.target.value) : null })}><option value="">بدون فئة</option>{categories?.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}</select></div><Field label="الكمية الحالية" value={form.quantity} onChange={value => setForm({ ...form, quantity: value })} type="number" /><Field label="تكلفة الوحدة بالدينار" value={form.unitCost} onChange={value => setForm({ ...form, unitCost: value })} type="number" /></div><div className="toolbar" style={{ marginTop: 18 }}><button className="btn btn-primary" onClick={() => save.mutate({ id: form.id, name: form.name, categoryId: form.categoryId, quantity: Math.max(0, Number(form.quantity)), unitCostFils: Math.max(0, Math.round(Number(form.unitCost) * 1000)) })}><Save size={15} /> حفظ</button>{form.id && <button className="btn btn-outline" onClick={reset}>إلغاء</button>}</div></div><div className="panel"><div className="panel-title"><div><h2>المخزون اليدوي</h2><p className="section-subtitle">فلترة المنتجات حسب الفئة وتكلفة الوحدة.</p></div><strong>القيمة: {formatJOD(value)}</strong></div><div className="filter-bar"><select value={categoryFilter} onChange={event => setCategoryFilter(event.target.value)}><option value="ALL">كل الفئات</option>{categories?.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}</select><input type="number" min={0} placeholder="أقل سعر" value={minPrice} onChange={event => setMinPrice(event.target.value)} /><input type="number" min={0} placeholder="أعلى سعر" value={maxPrice} onChange={event => setMaxPrice(event.target.value)} /></div>{isLoading ? <div className="loading-block"><Loader2 className="animate-spin" /></div> : <div className="table-wrap"><table className="data-table"><thead><tr><th>المنتج</th><th>الفئة</th><th>الكمية</th><th>تكلفة الوحدة</th><th>قيمة المخزون</th><th></th></tr></thead><tbody>{filtered.map(item => <tr key={item.id}><td>{item.name}</td><td>{item.categoryName}</td><td>{item.quantity}</td><td>{formatJOD(item.unitCostFils)}</td><td>{formatJOD(item.quantity * item.unitCostFils)}</td><td><div className="toolbar"><button className="btn btn-soft btn-sm" onClick={() => setForm({ id: item.id, name: item.name, categoryId: item.categoryId, quantity: String(item.quantity), unitCost: String(item.unitCostFils / 1000) })}>تعديل</button><button className="btn btn-danger btn-sm" onClick={() => remove.mutate({ id: item.id })}><Trash2 size={14} /></button></div></td></tr>)}</tbody></table>{!filtered.length && <div className="empty-state">لا توجد منتجات تطابق الفلاتر.</div>}</div>}<p style={{ color: "var(--muted)", fontSize: 11, lineHeight: 1.8, margin: "15px 0 0" }}>خصم المخزون يدوي في نسخة MVP لتجنب أي خصم غير مقصود عند إدخال تكاليف الطلبات.</p></div></div>;
+  const utils = trpc.useUtils();
+  const { data, isLoading } = trpc.admin.warehouse.useQuery();
+  const { data: categories } = trpc.admin.categories.useQuery();
+  const [form, setForm] = useState<any>({
+    name: "",
+    categoryId: null,
+    quantity: "",
+    unitCost: "",
+  });
+  const [categoryFilter, setCategoryFilter] = useState("ALL");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const save = trpc.admin.saveWarehouseProduct.useMutation({
+    onSuccess: async () => {
+      toast.success("تم حفظ المنتج.");
+      setForm({ name: "", categoryId: null, quantity: "", unitCost: "" });
+      await utils.admin.warehouse.invalidate();
+    },
+    onError: (error) => toast.error(error.message),
+  });
+  const remove = trpc.admin.deleteWarehouseProduct.useMutation({
+    onSuccess: async () => {
+      await utils.admin.warehouse.invalidate();
+    },
+    onError: (error) => toast.error(error.message),
+  });
+  const filtered = (data ?? []).filter(
+    (item) =>
+      (categoryFilter === "ALL" ||
+        String(item.categoryId ?? "") === categoryFilter) &&
+      (!minPrice || item.unitCostFils >= Number(minPrice) * 1000) &&
+      (!maxPrice || item.unitCostFils <= Number(maxPrice) * 1000),
+  );
+  const value = filtered.reduce(
+    (sum, item) => sum + item.quantity * item.unitCostFils,
+    0,
+  );
+  const reset = () =>
+    setForm({ name: "", categoryId: null, quantity: "", unitCost: "" });
+  return (
+    <div className="detail-grid">
+      <div className="panel">
+        <div className="panel-title">
+          <h2>{form.id ? "تعديل منتج" : "إضافة منتج"}</h2>
+        </div>
+        <div className="field-grid">
+          <Field
+            label="اسم المنتج"
+            value={form.name}
+            onChange={(value) => setForm({ ...form, name: value })}
+            className="span-2"
+          />
+          <div className="field">
+            <label>الفئة</label>
+            <select
+              value={form.categoryId ?? ""}
+              onChange={(event) =>
+                setForm({
+                  ...form,
+                  categoryId: event.target.value
+                    ? Number(event.target.value)
+                    : null,
+                })
+              }
+            >
+              <option value="">بدون فئة</option>
+              {categories?.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <Field
+            label="الكمية الحالية"
+            value={form.quantity}
+            onChange={(value) => setForm({ ...form, quantity: value })}
+            type="number"
+          />
+          <Field
+            label="تكلفة الوحدة بالدينار"
+            value={form.unitCost}
+            onChange={(value) => setForm({ ...form, unitCost: value })}
+            type="number"
+          />
+        </div>
+        <div className="toolbar" style={{ marginTop: 18 }}>
+          <button
+            className="btn btn-primary"
+            onClick={() =>
+              save.mutate({
+                id: form.id,
+                name: form.name,
+                categoryId: form.categoryId,
+                quantity: Math.max(0, Number(form.quantity)),
+                unitCostFils: Math.max(
+                  0,
+                  Math.round(Number(form.unitCost) * 1000),
+                ),
+              })
+            }
+          >
+            <Save size={15} /> حفظ
+          </button>
+          {form.id && (
+            <button className="btn btn-outline" onClick={reset}>
+              إلغاء
+            </button>
+          )}
+        </div>
+      </div>
+      <div className="panel">
+        <div className="panel-title">
+          <div>
+            <h2>المخزون اليدوي</h2>
+            <p className="section-subtitle">
+              فلترة المنتجات حسب الفئة وتكلفة الوحدة.
+            </p>
+          </div>
+          <strong>القيمة: {formatJOD(value)}</strong>
+        </div>
+        <div className="filter-bar">
+          <select
+            value={categoryFilter}
+            onChange={(event) => setCategoryFilter(event.target.value)}
+          >
+            <option value="ALL">كل الفئات</option>
+            {categories?.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+          <input
+            type="number"
+            min={0}
+            placeholder="أقل سعر"
+            value={minPrice}
+            onChange={(event) => setMinPrice(event.target.value)}
+          />
+          <input
+            type="number"
+            min={0}
+            placeholder="أعلى سعر"
+            value={maxPrice}
+            onChange={(event) => setMaxPrice(event.target.value)}
+          />
+        </div>
+        {isLoading ? (
+          <div className="loading-block">
+            <Loader2 className="animate-spin" />
+          </div>
+        ) : (
+          <div className="table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>المنتج</th>
+                  <th>الفئة</th>
+                  <th>الكمية</th>
+                  <th>تكلفة الوحدة</th>
+                  <th>قيمة المخزون</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((item) => (
+                  <tr key={item.id}>
+                    <td>{item.name}</td>
+                    <td>{item.categoryName}</td>
+                    <td>{item.quantity}</td>
+                    <td>{formatJOD(item.unitCostFils)}</td>
+                    <td>{formatJOD(item.quantity * item.unitCostFils)}</td>
+                    <td>
+                      <div className="toolbar">
+                        <button
+                          className="btn btn-soft btn-sm"
+                          onClick={() =>
+                            setForm({
+                              id: item.id,
+                              name: item.name,
+                              categoryId: item.categoryId,
+                              quantity: String(item.quantity),
+                              unitCost: String(item.unitCostFils / 1000),
+                            })
+                          }
+                        >
+                          تعديل
+                        </button>
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() => remove.mutate({ id: item.id })}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {!filtered.length && (
+              <div className="empty-state">لا توجد منتجات تطابق الفلاتر.</div>
+            )}
+          </div>
+        )}
+        <p
+          style={{
+            color: "var(--muted)",
+            fontSize: 11,
+            lineHeight: 1.8,
+            margin: "15px 0 0",
+          }}
+        >
+          خصم المخزون يدوي في نسخة MVP لتجنب أي خصم غير مقصود عند إدخال تكاليف
+          الطلبات.
+        </p>
+      </div>
+    </div>
+  );
 }
 
-function Field({ label, value, onChange, type = "text", className = "" }: { label: string; value: string; onChange: (value: string) => void; type?: string; className?: string }) { return <div className={`field ${className}`}><label>{label}</label><input type={type} value={value} onChange={event => onChange(event.target.value)} /></div>; }
+function Field({
+  label,
+  value,
+  onChange,
+  type = "text",
+  className = "",
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  type?: string;
+  className?: string;
+}) {
+  return (
+    <div className={`field ${className}`}>
+      <label>{label}</label>
+      <input
+        type={type}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
+    </div>
+  );
+}
