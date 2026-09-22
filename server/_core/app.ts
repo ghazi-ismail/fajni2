@@ -21,7 +21,9 @@ export function createApp() {
   });
 
   registerStorageProxy(app);
-  registerOAuthRoutes(app);
+  if (process.env.OAUTH_SERVER_URL) {
+    registerOAuthRoutes(app);
+  }
 
   app.use(
     "/api/trpc",

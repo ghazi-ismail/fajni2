@@ -1,5 +1,3 @@
-import { createApp } from "../server/_core/app";
+import handler from "../.vercel-api/api.mjs";
 
-// Vercel routes /api/* requests to this single serverless Express function.
-// The application keeps the existing /api/trpc and /api/oauth contracts.
-export default createApp();
+export default handler;

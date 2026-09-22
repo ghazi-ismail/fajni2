@@ -27,11 +27,13 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { notifyOwner } from "./_core/notification";
 
-const jwtSecret = process.env.JWT_SECRET ?? (process.env.NODE_ENV === "production" ? "" : "faj2ni-development-secret-change-me");
-if (!jwtSecret) {
-  throw new Error("JWT_SECRET is required in production.");
+function getJwtSecret() {
+  const jwtSecret = process.env.JWT_SECRET ?? (process.env.NODE_ENV === "production" ? "" : "faj2ni-development-secret-change-me");
+  if (!jwtSecret) {
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "Authentication is not configured." });
+  }
+  return new TextEncoder().encode(jwtSecret);
 }
-const secret = new TextEncoder().encode(jwtSecret);
 const adminCookieName = "faj2ni_admin";
 const customerCookieName = "faj2ni_customer";
 const fils = z.number().int().min(0).max(10_000_000);
@@ -54,7 +56,7 @@ async function currentAdmin(cookieHeader?: string) {
   const token = parse(cookieHeader ?? "")[adminCookieName];
   if (!token) return null;
   try {
-    const { payload } = await jwtVerify(token, secret);
+    const { payload } = await jwtVerify(token, getJwtSecret());
     if (typeof payload.adminId !== "number") return null;
     const db = await getDb();
     const rows = await db.select().from(admins).where(and(eq(admins.id, payload.adminId), eq(admins.active, true))).limit(1);
@@ -80,7 +82,7 @@ async function currentCustomer(cookieHeader?: string) {
   const token = parse(cookieHeader ?? "")[customerCookieName];
   if (!token) return null;
   try {
-    const { payload } = await jwtVerify(token, secret);
+    const { payload } = await jwtVerify(token, getJwtSecret());
     if (typeof payload.customerId !== "number") return null;
     return getCustomerAccount(payload.customerId);
   } catch {
@@ -135,7 +137,7 @@ export const appRouter = router({
       if (!customer.passwordHash || customer.passwordHash !== hashPassword(input.password)) {
         throw new TRPCError({ code: "UNAUTHORIZED", message: "رقم الهاتف أو كلمة المرور غير صحيحة." });
       }
-      const token = await new SignJWT({ customerId: customer.id }).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime("30d").sign(secret);
+      const token = await new SignJWT({ customerId: customer.id }).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime("30d").sign(getJwtSecret());
       ctx.res.cookie(customerCookieName, token, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", maxAge: 30 * 24 * 60 * 60 * 1000, path: "/" });
       return getCustomerAccount(customer.id);
     }),
@@ -228,7 +230,7 @@ export const appRouter = router({
       if (!admin || admin.passwordHash !== hashPassword(input.password)) {
         throw new TRPCError({ code: "UNAUTHORIZED", message: "بيانات الدخول غير صحيحة." });
       }
-      const token = await new SignJWT({ adminId: admin.id }).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime("12h").sign(secret);
+      const token = await new SignJWT({ adminId: admin.id }).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime("12h").sign(getJwtSecret());
       ctx.res.cookie(adminCookieName, token, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", maxAge: 12 * 60 * 60 * 1000, path: "/" });
       return { id: admin.id, name: admin.name, email: admin.email };
     }),
